@@ -50,3 +50,10 @@ curl -X POST http://localhost:8080/query \
   -H "Content-Type: application/json" \
   -d '{"query":"{ health }"}'
 ```
+
+## Docker
+
+```bash
+docker build -t ksi-bff .
+docker run -p 8080:8080 ksi-bff
+```

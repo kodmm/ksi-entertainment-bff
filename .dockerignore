@@ -1,0 +1,11 @@
+.git
+.gitignore
+README.md
+*.md
+.env
+.env.*
+*.log
+.DS_Store
+ksi-entertainment-bff
+*.exe
+*.test
