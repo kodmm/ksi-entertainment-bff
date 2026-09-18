@@ -1,19 +1,8 @@
-import { createSchema, createYoga } from 'graphql-yoga';
+import { createYoga } from 'graphql-yoga';
 import { createServer } from 'node:http';
+import { schema } from './interfaces/graphql/index.js';
 
-const schema = createSchema({
-  typeDefs: /* GraphQL */ `
-    type Query {
-      health: String!
-    }
-  `,
-  resolvers: {
-    Query: {
-      health: () => 'ok',
-    },
-  },
-});
-
+// composition root: サーバー起動とリゾルバー〜ハンドラーの結線だけを行う
 const yoga = createYoga({ schema });
 const server = createServer(yoga);
 
