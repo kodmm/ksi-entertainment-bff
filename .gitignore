@@ -1,5 +1,9 @@
-node_modules
-dist
+# build artifacts
+/ksi-entertainment-bff
+*.exe
+*.test
+
+# env / logs / os
 .env
 .env.*
 *.log

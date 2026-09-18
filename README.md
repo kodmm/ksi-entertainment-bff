@@ -9,42 +9,44 @@ Next.js フロントエンドと、以下の2つの gRPC バックエンドの�
 
 ## 技術スタック
 
-- Node.js / TypeScript
-- [graphql-yoga](https://the-guild.dev/graphql/yoga-server)
+- Go
+- [gqlgen](https://gqlgen.com/)（schema-first で GraphQL サーバーを実装）
 
 ## アーキテクチャ
 
 Clean Architecture + CQRS（コマンドとクエリの分離）を採用する。Event Sourcing は matching-service のみで採用し、この BFF では使わない。
 
 ```
-src/
-  domain/                 # ドメインの型定義
-  application/
-    queries/              # クエリハンドラー（読み取り専用）
-    commands/             # コマンドハンドラー（書き込み）。現時点では未実装
-  interfaces/graphql/      # GraphQL スキーマ・リゾルバー。ハンドラーを呼ぶだけでロジックは持たない
-  infrastructure/          # misc-service / matching-service への gRPC クライアント置き場。現時点では未実装
-  index.ts                 # composition root（サーバー起動とリゾルバー〜ハンドラーの結線のみ）
+domain/                 # ドメインの型定義
+application/
+  queries/               # クエリハンドラー（読み取り専用）
+  commands/               # コマンドハンドラー（書き込み）。現時点では未実装
+interfaces/graphql/       # GraphQL スキーマ・リゾルバー。ハンドラーを呼ぶだけでロジックは持たない
+infrastructure/           # misc-service / matching-service への gRPC クライアント置き場。現時点では未実装
+generated/                 # gqlgen が生成するコード（exec スキーマ・model）。gqlgen の規約に従い、
+                            # 上記の Clean Architecture のレイヤーとは別枠として扱う
+server.go                  # composition root（サーバー起動とリゾルバー〜ハンドラーの結線のみ）
 ```
 
 ## セットアップ
 
 ```bash
-npm install
+go mod tidy
 ```
 
 ## コマンド
 
 ```bash
-npm run dev    # 開発サーバー起動 (http://localhost:4000/graphql, ファイル変更を監視)
-npm run build  # TypeScript をビルド (dist/ に出力)
-npm run start  # ビルド済みのサーバーを起動
+go run .                                    # 開発サーバー起動 (http://localhost:8080/ に GraphQL Playground)
+go build -o ksi-entertainment-bff .         # ビルド
+./ksi-entertainment-bff                     # ビルド済みバイナリを起動
+go run github.com/99designs/gqlgen generate # schema.graphqls を変更した際にリゾルバー・modelを再生成
 ```
 
 起動後、以下のクエリで動作確認できる。
 
 ```bash
-curl -X POST http://localhost:4000/graphql \
+curl -X POST http://localhost:8080/query \
   -H "Content-Type: application/json" \
   -d '{"query":"{ health }"}'
 ```
